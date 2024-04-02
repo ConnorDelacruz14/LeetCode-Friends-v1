@@ -16,8 +16,6 @@ export default defineManifest({
     default_popup: 'popup.html',
     default_icon: 'img/logo.png',
   },
-  options_page: 'options.html',
-  devtools_page: 'devtools.html',
   background: {
     service_worker: 'src/background/index.ts',
     type: 'module',
