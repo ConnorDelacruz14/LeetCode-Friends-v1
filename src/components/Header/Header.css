@@ -1,0 +1,14 @@
+.title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.logo {
+    height: 32px;
+    width: 32px;
+    border: 1px solid var(--light-mode-text-primary);
+    border-radius: 10px;
+}

@@ -1,7 +1,7 @@
-.card {
+.small-card {
     border: 1px solid var(--light-mode-border-primary);
     border-radius: 10px;
-    height: 175px;
+    height: 30px;
     width: 175px;
     font-size: 13px;
     font-weight: 500;

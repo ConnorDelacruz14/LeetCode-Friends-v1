@@ -1,6 +1,5 @@
 :root {
-  font-family: -apple-system
-  color-scheme: light dark;
+  font-family: -apple-system;
 }
 
 @media (prefers-color-scheme: light) {
@@ -25,11 +24,13 @@ body {
   height: 560px;
   width: 400px;
   font-size: 30px;
-  font-weight: 700;
+  font-weight: 400;
   padding: 10px;
   margin: 0;
   overflow-y: hidden;
 }
+
+
 
 
 

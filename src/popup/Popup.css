@@ -3,3 +3,21 @@
     color: #61dafb;
   }
 }
+
+.card-columns-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.card-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.column-1 {
+  margin-right: 5px;
+}
+
+.column-2 {
+  margin-left: 5px;
+}
