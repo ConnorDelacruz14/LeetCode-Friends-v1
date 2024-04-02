@@ -9,6 +9,9 @@ export default defineManifest({
   description: packageData.description,
   version: packageData.version,
   manifest_version: 3,
+  "host_permissions": [
+    "*://leetcode.com/"
+  ],
   action: {
     default_popup: 'popup.html',
     default_icon: 'img/logo.png',
@@ -25,17 +28,11 @@ export default defineManifest({
       js: ['src/contentScript/index.ts'],
     },
   ],
-  side_panel: {
-    default_path: 'sidepanel.html',
-  },
   web_accessible_resources: [
     {
       resources: [],
       matches: [],
     },
   ],
-  permissions: ['sidePanel', 'storage'],
-  chrome_url_overrides: {
-    newtab: 'newtab.html',
-  },
+  permissions: ['storage', 'cookies'],
 })
