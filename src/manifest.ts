@@ -12,6 +12,9 @@ export default defineManifest({
   "host_permissions": [
     "*://leetcode.com/"
   ],
+  icons: {
+    128: "img/logo.png"
+  },
   action: {
     default_popup: 'popup.html',
     default_icon: 'img/logo.png',
