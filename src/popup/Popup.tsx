@@ -45,6 +45,8 @@ const icons = {
 }
 
 let user = {
+  token: "",
+  session: "",
   username: "", 
   avatar: "",
   streak: "0",
@@ -58,10 +60,47 @@ let user = {
   currentSession: [],
 }
 
-export const Popup = () => {
+// Assume userprofile is a stateful object in your React component
 
+const fetchData = async (username: string, leetcode_session: string, query: any) => {
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+  myHeaders.append("Cookie", `LEETCODE_SESSION=${leetcode_session}`);
+
+  const graphql = JSON.stringify({
+      query: query,
+      variables: { username: username },
+  });
+
+  const response = await fetch("https://leetcode.com/graphql/", {
+    method: "POST",
+    headers: myHeaders,
+    body: graphql,
+    redirect: "follow",
+  });
+
+  const result = await response.json();
+  return result.data.matchedUser;
+};
+
+
+export const Popup = () => {
   const [profile, setProfile] = useState(user);
   const [theme, setTheme] = useState(0);
+
+  // Get initial cookie and user info
+  useEffect(() => {
+    chrome.runtime.sendMessage({ message: "I need the user info" }, (response) => {
+      // Construct a new user object with the received information
+      const updatedUser = {
+        ...user,
+        token: response.csrf_token,
+        session: response.leetcode_session,
+        username: response.user_name,
+      };
+      setProfile(updatedUser);
+    });
+  }, []);
 
   return (
     <main>

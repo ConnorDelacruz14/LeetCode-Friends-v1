@@ -13,6 +13,7 @@ type Props = {
 
 export const SmallBox: React.FC<Props> = ({title, height, icons, value, appearance, input, callback}) => {
     const className = 'small-card ' + height;
+    console.log(title);
     return (
         <div className={className}>
             {icons ? <div className={input ? input + " align-center" : "align-center username"}>{icons[0]}{icons[1]}{title}</div> : <div className="align-center username">{title}</div>}
