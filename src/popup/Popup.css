@@ -35,3 +35,28 @@
     margin-top: 5px;
     margin-bottom: 5px;
 }
+
+svg {
+  margin-right: 10px;
+}
+
+img {
+  height: 20px;
+  width: 20px;
+}
+
+.avatar {
+  height: 30px;
+  width: 30px;
+  border-radius: 30px;
+  margin-right: 10px;
+}
+
+.align-center {
+  display: flex;
+  align-items: center;
+}
+
+.username {
+  max-width: 130px;
+}
