@@ -21,3 +21,11 @@
 .column-2 {
   margin-left: 5px;
 }
+
+.award-container {
+    height: 70px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: auto auto;
+    gap: 7px;
+}
