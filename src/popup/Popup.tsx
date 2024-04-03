@@ -46,9 +46,16 @@ const icons = {
 
 let user = {
   username: "", 
+  avatar: "",
   streak: "0",
-  friends: [],
+  friends: [{
+    username: "",
+    avatar: "",
+    streak: "0",
+  }],
   sessionCode: "",
+  statistics: [],
+  currentSession: [],
 }
 
 export const Popup = () => {
@@ -61,15 +68,15 @@ export const Popup = () => {
       <Header></Header>
       <div className='card-columns-container'>
         <div className="card-column column-1">
-          <ItemBox title="Current Session"></ItemBox>
-          <ItemBox title="Statistics"></ItemBox>
+          <ItemBox title="Current Session" iterable={profile.currentSession}></ItemBox>
+          <ItemBox title="Statistics"iterable={profile.statistics}></ItemBox>
           <SmallBox title="Appearance" icons={[icons.sun, icons.moon]} appearance={true} height="appearance"></SmallBox>
           <SmallBox title="Level 0"></SmallBox>
         </div>
         <div className="card-column column-2">
           <SmallBox title={profile.username} height="h-20" icons={[icons.profile, icons.empty, icons.nostreak, icons.streak]} value={profile.streak}></SmallBox>
           <SmallBox title="Session Code:" height="h-20"></SmallBox>
-          <ItemBox title="Friends"></ItemBox>
+          <ItemBox title="Friends" iterable={profile.friends}></ItemBox>
           <SmallBox title="" input="add-friend" height="h-20" icons={[icons.search]}></SmallBox>
           <SmallBox title="Join Session:" input="join-session" height="h-20"></SmallBox>
           <div className='awards-container'>
