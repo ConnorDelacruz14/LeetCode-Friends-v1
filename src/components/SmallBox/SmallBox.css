@@ -11,3 +11,11 @@
     display: flex;
     align-items: center;
 }
+
+.h-25 {
+    height: 25px; 
+}
+
+.h-20 {
+    height: 20px; 
+}
