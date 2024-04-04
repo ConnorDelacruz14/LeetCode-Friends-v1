@@ -7,7 +7,7 @@ import Award from '../components/Award/Award'
 import './Popup.css'
 
 const icons = {
-  sun: <svg className="shown light-mode-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18"
+  sun: <svg className="light-mode-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" width="18"
                         height="18" stroke="currentColor" fill="none" role="none">
                         <g role="none">
                             <g role="none">
@@ -18,7 +18,7 @@ const icons = {
                                     d="M12.4839 6.69728C12.9641 7.58846 12.7542 8.63364 12.0152 9.03176C11.2763 9.42988 10.288 9.03019 9.80787 8.13902C9.32775 7.24785 9.5376 6.20267 10.2766 5.80454C11.0156 5.40642 12.0038 5.80611 12.4839 6.69728Z"
                                     stroke-width="1.5" role="none"></path>
     </g></g></svg>, 
-  moon: <svg className="not-shown dark-mode-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18"
+  moon: <svg className="dark-mode-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18"
       width="18" height="18" stroke="currentColor" fill="none" role="none">
       <g role="none">
           <path
@@ -35,7 +35,7 @@ const icons = {
       clip-rule="evenodd">
   </path>
     </svg>,
-  streak: <img className="streak not-shown" src="img/streak.png" alt="streak"></img>,
+  streak: <img className="streak" src="img/streak.png" alt="streak"></img>,
   search: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16px" height="16px"
   fill="currentColor">
   <path fill-rule="evenodd"
@@ -49,56 +49,25 @@ let user = {
   session: "",
   username: "", 
   avatar: "",
-  streak: "0",
-  friends: [{
-    username: "",
-    avatar: "",
-    streak: "0",
-  }],
+  streak: 0,
+  friends: [],
   sessionCode: "",
-  statistics: [],
+  statistics: {
+      languageStats: [],
+  },
   currentSession: [],
+  ranking: 0,
+  awards: []
 }
-
-// Assume userprofile is a stateful object in your React component
-
-const fetchData = async (username: string, leetcode_session: string, query: any) => {
-  const myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
-  myHeaders.append("Cookie", `LEETCODE_SESSION=${leetcode_session}`);
-
-  const graphql = JSON.stringify({
-      query: query,
-      variables: { username: username },
-  });
-
-  const response = await fetch("https://leetcode.com/graphql/", {
-    method: "POST",
-    headers: myHeaders,
-    body: graphql,
-    redirect: "follow",
-  });
-
-  const result = await response.json();
-  return result.data.matchedUser;
-};
-
 
 export const Popup = () => {
   const [profile, setProfile] = useState(user);
   const [theme, setTheme] = useState(0);
 
-  // Get initial cookie and user info
   useEffect(() => {
-    chrome.runtime.sendMessage({ message: "I need the user info" }, (response) => {
-      // Construct a new user object with the received information
-      const updatedUser = {
-        ...user,
-        token: response.csrf_token,
-        session: response.leetcode_session,
-        username: response.user_name,
-      };
-      setProfile(updatedUser);
+    chrome.runtime.sendMessage({ message: "Retrieving user" }, (response) => {
+      console.log(response);
+      setProfile(response);
     });
   }, []);
 
@@ -108,12 +77,12 @@ export const Popup = () => {
       <div className='card-columns-container'>
         <div className="card-column column-1">
           <ItemBox title="Current Session" iterable={profile.currentSession}></ItemBox>
-          <ItemBox title="Statistics"iterable={profile.statistics}></ItemBox>
+          <ItemBox title="Statistics" iterable={profile.statistics.languageStats}></ItemBox>
           <SmallBox title="Appearance" icons={[icons.sun, icons.moon]} appearance={true} height="appearance"></SmallBox>
           <SmallBox title="Level 0"></SmallBox>
         </div>
         <div className="card-column column-2">
-          <SmallBox title={profile.username} height="h-20" icons={[icons.profile, icons.empty, icons.nostreak, icons.streak]} value={profile.streak}></SmallBox>
+          <SmallBox title={profile.username} height="h-20" icons={[profile.avatar ? <img className='avatar' src={profile.avatar} alt={profile.username}></img>:icons.profile, icons.empty, profile.streak > 0 ? icons.streak : icons.nostreak]} value={profile.streak}></SmallBox>
           <SmallBox title="Session Code:" height="h-20"></SmallBox>
           <ItemBox title="Friends" iterable={profile.friends}></ItemBox>
           <SmallBox title="" input="add-friend" height="h-20" icons={[icons.search]}></SmallBox>
