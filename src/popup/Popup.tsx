@@ -1,7 +1,6 @@
 import { useState, useEffect, ReactElement } from 'react'
 import ItemBox from '../components/ItemBox/ItemBox'
 import Header from '../components/Header/Header'
-import SmallBox from '../components/SmallBox/SmallBox'
 import Award from '../components/Award/Award'
 
 import './Popup.css'
@@ -41,7 +40,12 @@ const icons = {
   <path fill-rule="evenodd"
       d="M5.527 5.527a7.5 7.5 0 0111.268 9.852l3.581 3.583a1 1 0 01-1.414 1.415l-3.582-3.583A7.501 7.501 0 015.527 5.527zm1.414 1.414a5.5 5.5 0 107.779 7.779A5.5 5.5 0 006.94 6.94z"
       clip-rule="evenodd"></path>
-    </svg>
+    </svg>,
+  open: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" role="none">
+  <path fill-rule="evenodd"
+      d="M9.293 7.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414-1.414L13.586 12 9.293 7.707z"
+      clip-rule="evenodd" role="none"></path>
+</svg>
 }
 
 let user = {
@@ -51,25 +55,45 @@ let user = {
   avatar: "",
   streak: 0,
   friends: [],
+  friend_requests: [],
+  incoming_friend_requests: [],
   sessionCode: "",
   statistics: {
       languageStats: [],
+      num_top_three: 0,
+      num_first_place: 0,
   },
   currentSession: [],
   ranking: 0,
+  level: 0,
+  experience: 0,
   awards: []
 }
 
 export const Popup = () => {
   const [profile, setProfile] = useState(user);
   const [theme, setTheme] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [friendSearch, setFriendSearch] = useState("");
+  const [sessionCode, setSessionCode] = useState(user.sessionCode)
 
   useEffect(() => {
     chrome.runtime.sendMessage({ message: "Retrieving user" }, (response) => {
       console.log(response);
       setProfile(response);
+      setLoading(false);
     });
   }, []);
+
+  const toggleTheme = (desiredTheme: number) => {
+    if (theme !== desiredTheme) {
+      setTheme(desiredTheme);
+    }
+  }
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <main>
@@ -78,15 +102,64 @@ export const Popup = () => {
         <div className="card-column column-1">
           <ItemBox title="Current Session" iterable={profile.currentSession}></ItemBox>
           <ItemBox title="Statistics" iterable={profile.statistics.languageStats}></ItemBox>
-          <SmallBox title="Appearance" icons={[icons.sun, icons.moon]} appearance={true} height="appearance"></SmallBox>
-          <SmallBox title="Level 0"></SmallBox>
+          <div className="small-card">
+            <div className="level-container">
+              <span className="level">Level {profile.level}</span>
+              <span className="xp">0/100<span className="xp">xp</span></span>
+            </div>
+            <meter value={profile.experience} min="0" low={10} optimum={50} high={90} max="100"></meter>
+          </div>
+          <div className="small-card appearance">
+            <div className='align-center'>
+              {theme ? icons.moon : icons.sun}
+              <div>Appearance</div>
+              <div className="appearance-options">
+                    <div className="option light" onClick={() => toggleTheme(0)}>
+                        Light
+                        {!theme ? <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em"
+                            fill="currentColor" className="mode">
+                            <path fill-rule="evenodd"
+                                d="M9.688 15.898l-3.98-3.98a1 1 0 00-1.415 1.414L8.98 18.02a1 1 0 001.415 0L20.707 7.707a1 1 0 00-1.414-1.414l-9.605 9.605z"
+                                clip-rule="evenodd"></path>
+                        </svg> : ""}
+                    </div>
+                    <div className="option dark" onClick={() => toggleTheme(1)}>
+                        Dark
+                        {theme ? <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em"
+                            fill="currentColor" className="mode">
+                            <path fill-rule="evenodd"
+                                d="M9.688 15.898l-3.98-3.98a1 1 0 00-1.415 1.414L8.98 18.02a1 1 0 001.415 0L20.707 7.707a1 1 0 00-1.414-1.414l-9.605 9.605z"
+                                clip-rule="evenodd"></path>
+                        </svg> : ""}
+                    </div>
+              </div>
+            </div>
+            {icons.open}
+          </div>
         </div>
         <div className="card-column column-2">
-          <SmallBox title={profile.username} height="h-20" icons={[profile.avatar ? <img className='avatar' src={profile.avatar} alt={profile.username}></img>:icons.profile, icons.empty, profile.streak > 0 ? icons.streak : icons.nostreak]} value={profile.streak}></SmallBox>
-          <SmallBox title="Session Code:" height="h-20"></SmallBox>
+           <div className="small-card h-20">
+            <div className="align-center">
+              {profile.avatar ? <img className='avatar' src={profile.avatar} alt={profile.username}></img> : icons.profile}
+              {profile.username}
+            </div>
+            <div className="align-center">
+              {profile.streak > 0 ? icons.streak : icons.nostreak}
+              {profile.streak}
+            </div>
+          </div>
+          <div className="small-card h-20">
+            Session Code:
+          </div>
           <ItemBox title="Friends" iterable={profile.friends}></ItemBox>
-          <SmallBox title="" input="add-friend" height="h-20" icons={[icons.search]}></SmallBox>
-          <SmallBox title="Join Session:" input="join-session" height="h-20"></SmallBox>
+          <div className="small-card h-20">
+            {icons.search}
+            <input type="text" id="add-friend-input" placeholder="Add friend by username"></input>
+          </div>
+          <div className="small-card h-20">
+            <div>Join Session:</div>
+            <input type="text" id="join-session-input" placeholder="ex. H3A87G" maxLength={6}></input>
+          </div>
           <div className='awards-container'>
               <Award active="not-active" src="img/award.png" alt="award" desc="Honorable - Place 1st in 3 seperate sessions"></Award>
               <Award active="not-active" src="img/competition.png" alt="competition" desc="Competitor - Get top 3 in a single session"></Award>
