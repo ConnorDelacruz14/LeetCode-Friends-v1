@@ -138,6 +138,7 @@ input:focus {
 
 ::placeholder {
   color: var(--light-mode-border-primary);
+  font-size: 12px;
 }
 
 #join-session-input {
@@ -166,4 +167,15 @@ input:focus {
 
 .progress-meter meter {
   width: 60%;
+}
+
+.plus-sign {
+  font-size: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.plus-sign:hover {
+  cursor: pointer;
 }

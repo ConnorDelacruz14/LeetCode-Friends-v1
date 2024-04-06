@@ -48,7 +48,7 @@ const icons = {
 </svg>
 }
 
-let user = {
+let user: User = {
   token: "",
   session: "",
   username: "", 
@@ -70,25 +70,95 @@ let user = {
   awards: []
 }
 
+interface Question {
+  number: number;
+  name: string;
+  complete: boolean;
+}
+
+interface Statistics {
+  languageStats: any[]; // Adjust the 'any' type based on what 'languageStats' should be
+  num_top_three: number;
+  num_first_place: number;
+}
+
+interface User {
+  token: string;
+  session: string;
+  username: string;
+  avatar: string;
+  streak: number;
+  friends: any[]; 
+  friend_requests: any[]; 
+  incoming_friend_requests: any[];
+  sessionCode: string;
+  statistics: Statistics;
+  currentSession: Question[];
+  ranking: number;
+  level: number;
+  experience: number;
+  awards: any[]; 
+}
+
 export const Popup = () => {
-  const [profile, setProfile] = useState(user);
-  const [theme, setTheme] = useState(0);
+  const [profile, setProfile] = useState<User>(user);
   const [loading, setLoading] = useState(true);
   const [friendSearch, setFriendSearch] = useState("");
   const [sessionCode, setSessionCode] = useState(user.sessionCode)
+  const [addQuestionTitle, setAddQuestionTitle] = useState("");
 
   useEffect(() => {
     chrome.runtime.sendMessage({ message: "Retrieving user" }, (response) => {
-      console.log(response);
       setProfile(response);
       setLoading(false);
     });
   }, []);
 
-  const toggleTheme = (desiredTheme: number) => {
-    if (theme !== desiredTheme) {
-      setTheme(desiredTheme);
-    }
+  const deleteQuestion = (index: number) => {
+    const updatedCurrentSession = profile.currentSession.filter((_, idx) => idx !== index);
+    setProfile(prevProfile => ({
+        ...prevProfile,
+        currentSession: updatedCurrentSession
+    }));
+  }
+
+  const deleteFriend = (index: number) => {
+
+  }
+
+  const addQuestion = (title: string) => {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Cookie", "__cf_bm=92tjB_2P3f.lm5XsSpzXfjJr1n6i9A4QKdrM4SkgNIA-1712371324-1.0.1.1-MV.3RAis_uOfUDmpJeW9jC6qpuDaXnMTAucpxd7PRCP3SmfCkhMm_gbQGCQjKenNzYXf7BGksOZqL8ICy0b1bw; csrftoken=Uy2nBh0YTmi8aen2nVEoVUbw0VDAtC1iGEfLaG4N7QGgDbjGuCEQ6tnkmU80tI9z");
+  
+    // Convert the title to a slug format expected by the LeetCode API
+    const titleSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-*|-*$/g, '');
+  
+    const graphql = JSON.stringify({
+      query: "query questionTitle($titleSlug: String!) {\n  question(titleSlug: $titleSlug) {\n    questionId\n    title\n  }\n}",
+      variables: {titleSlug}
+    })
+  
+    fetch("https://leetcode.com/graphql/", {
+      method: "POST",
+      headers: myHeaders,
+      body: graphql,
+      redirect: "follow"
+      })
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.data && result.data.question) {
+          const newQuestion = {
+            number: parseInt(result.data.question.questionId, 10),
+            name: result.data.question.title,
+            complete: false
+          };
+          setProfile(prevProfile => ({
+            ...prevProfile,
+            currentSession: [...prevProfile.currentSession, newQuestion]
+        }));
+      }})
+      .catch((error) => console.error('Error:', error));
   }
 
   if (loading) {
@@ -100,41 +170,23 @@ export const Popup = () => {
       <Header></Header>
       <div className='card-columns-container'>
         <div className="card-column column-1">
-          <ItemBox title="Current Session" iterable={profile.currentSession}></ItemBox>
-          <ItemBox title="Statistics" iterable={profile.statistics.languageStats}></ItemBox>
+          <ItemBox delete={deleteQuestion} title="Current Session" iterable={profile.currentSession}></ItemBox>
+          <div className="small-card">
+            <input
+              placeholder='Add question title here'
+              value={addQuestionTitle}
+              onChange={(e) => setAddQuestionTitle(e.target.value)}
+            ></input>
+
+            <div className='plus-sign' onClick={() => addQuestion(addQuestionTitle)}>+</div>
+          </div>
+          <ItemBox delete={deleteFriend} title="Statistics" iterable={profile.statistics.languageStats}></ItemBox>
           <div className="small-card">
             <div className="level-container">
               <span className="level">Level {profile.level}</span>
               <span className="xp">0/100<span className="xp">xp</span></span>
             </div>
             <meter value={profile.experience} min="0" low={10} optimum={50} high={90} max="100"></meter>
-          </div>
-          <div className="small-card appearance">
-            <div className='align-center'>
-              {theme ? icons.moon : icons.sun}
-              <div>Appearance</div>
-              <div className="appearance-options">
-                    <div className="option light" onClick={() => toggleTheme(0)}>
-                        Light
-                        {!theme ? <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em"
-                            fill="currentColor" className="mode">
-                            <path fill-rule="evenodd"
-                                d="M9.688 15.898l-3.98-3.98a1 1 0 00-1.415 1.414L8.98 18.02a1 1 0 001.415 0L20.707 7.707a1 1 0 00-1.414-1.414l-9.605 9.605z"
-                                clip-rule="evenodd"></path>
-                        </svg> : ""}
-                    </div>
-                    <div className="option dark" onClick={() => toggleTheme(1)}>
-                        Dark
-                        {theme ? <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em"
-                            fill="currentColor" className="mode">
-                            <path fill-rule="evenodd"
-                                d="M9.688 15.898l-3.98-3.98a1 1 0 00-1.415 1.414L8.98 18.02a1 1 0 001.415 0L20.707 7.707a1 1 0 00-1.414-1.414l-9.605 9.605z"
-                                clip-rule="evenodd"></path>
-                        </svg> : ""}
-                    </div>
-              </div>
-            </div>
-            {icons.open}
           </div>
         </div>
         <div className="card-column column-2">
@@ -151,7 +203,7 @@ export const Popup = () => {
           <div className="small-card h-20">
             Session Code:
           </div>
-          <ItemBox title="Friends" iterable={profile.friends}></ItemBox>
+          <ItemBox delete={() => {}} title="Friends" iterable={profile.friends}></ItemBox>
           <div className="small-card h-20">
             {icons.search}
             <input type="text" id="add-friend-input" placeholder="Add friend by username"></input>

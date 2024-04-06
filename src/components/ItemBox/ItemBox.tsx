@@ -1,8 +1,12 @@
+import Question from '../Question/Question';
+
 import './ItemBox.css'
+
 
 type Props = {
     title: string;
     iterable: Array<any>;
+    delete: (index: number) => void;
 }
 
 type Friend = {
@@ -14,6 +18,8 @@ type Friend = {
 type Question = {
     name: string;
     number: number;
+    complete: boolean;
+    index: number;
 }
 
 type Statistic = {
@@ -22,7 +28,8 @@ type Statistic = {
     img: string;
 }
 
-export const ItemBox: React.FC<Props> = ({title, iterable}) => {
+export const ItemBox: React.FC<Props> = ({title, iterable, delete: deleteFunction}) => {
+
     return (
         <div className="card">
             <div className="card-title">{title}</div>
@@ -35,10 +42,8 @@ export const ItemBox: React.FC<Props> = ({title, iterable}) => {
                         <span>{friend.streak}</span>
                     </div>
                 </div>) : ""}
-                {title === "Current Session" ? iterable.map((question: Question) => <div className="question">
-                    <h3>{question.number}.</h3>
-                    <div>{question.name}</div>
-                </div>) : ""}
+                {title === "Current Session" ? iterable.map((question: Question, index: number) => 
+                    <Question index={index} name={question.name} number={question.number} complete={question.complete} delete={() => {deleteFunction(index)}}></Question>) : ""}
                 {title === "Statistics" ? iterable.map((statistic: Statistic) => <div className="statistic">
                     <img src={statistic.img}></img>
                     <div>{statistic.name}</div>
